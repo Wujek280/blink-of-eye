@@ -7,7 +7,13 @@
 #define D_12 12
 #define A_7 7
 
+const int READING_TIMES = 10;
+const int READING_THRESHOLD = 700;
+const int MILLIS_MIN = 100;
+
 int lastReading = 0;
+int lastState = LOW;
+int lastTriggerMillis = 0;
 
 void setup()
 {
@@ -18,10 +24,7 @@ void setup()
 	// Serial.println("Current : " + (String)(currentReading) + "\tDelta : " + (String)(currentReading - lastReading));
 }
 
-void loop()
-{
-	const int READING_TIMES = 10;
-	const int READING_THRESHOLD = 700;
+void loop() {
 
 	int readingSum = 0;
 	int currentReading = 0;
@@ -36,10 +39,15 @@ void loop()
 	lastReading = currentReading;
 
 	if(READING_THRESHOLD < currentReading && READING_THRESHOLD < lastReading){
-		digitalWrite(D_13_LED, LOW );
-		digitalWrite(D_12, HIGH );
+		if( (millis() - lastTriggerMillis()) < MILLIS_MIN){
+			digitalWrite(D_13_LED, LOW );
+			digitalWrite(D_12, HIGH );
+			lastTriggerMillis = millis();
+			lastState = HIGH;
+		}
 	}else{
 		digitalWrite(D_13_LED, HIGH );
 		digitalWrite(D_12, LOW );
+  		lastState = LOW;
 	}
 }
